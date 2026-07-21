@@ -1,0 +1,102 @@
+"""
+models.py — Pydantic models for all structured data in the agent.
+
+WHY PYDANTIC, NOT DICTS OR REGEX:
+LLMs are stochastic — even with JSON mode enabled, the SHAPE of the
+response can vary between calls. Consider asking an LLM "do you have
+enough information?" It might respond:
+
+    {"enough": true}        ← correct key name?
+    {"enough_info": "yes"}  ← string instead of bool?
+    {"has_enough": true}    ← different key name?
+
+With a Pydantic model, we define the contract ONCE:
+    class SearchDecision(BaseModel):
+        enough_info: bool
+
+If the LLM returns {"has_enough": true}, Pydantic raises a
+ValidationError with a clear message: "field 'enough_info' is
+missing." Compare that to regex parsing, where "yes" matches but
+"Yes, I have enough" doesn't, and the failure is silent.
+
+WHY ALL MODELS LIVE HERE:
+Centralizing models in one file means:
+1. Any developer can see all the "contracts" at a glance
+2. No circular imports between modules that share models
+3. Easy to audit what the LLM is expected to return
+"""
+
+from pydantic import BaseModel, Field
+
+
+class SearchDecision(BaseModel):
+    """
+    The LLM's decision about whether to continue searching.
+
+    Returned after each search-read cycle. This is the core of
+    agentic behavior — the model explicitly reasons about its own
+    state and decides its next action.
+
+    WHY EACH FIELD EXISTS:
+    - enough_info: The binary decision. Must be a bool, not "yes"/"no"
+    - reasoning: Forces the model to explain WHY it thinks it has
+      enough (or not). This serves two purposes:
+      1. Better decisions (chain-of-thought improves LLM reasoning)
+      2. Debuggability (we can read the log and see WHY it stopped)
+    - next_query: If not enough, what to search next. None means
+      the model thinks more searching won't help (dead end).
+    """
+    enough_info: bool = Field(
+        description="Whether the gathered information is sufficient to answer the original question comprehensively."
+    )
+    reasoning: str = Field(
+        description="Brief explanation of why the information is or isn't sufficient, and what's missing if not."
+    )
+    next_query: str | None = Field(
+        default=None,
+        description="If enough_info is False, the next search query to run. Should be different from previous queries. None if enough_info is True or if further searching seems futile."
+    )
+
+
+class SourceDocument(BaseModel):
+    """
+    A single source that the agent has read and extracted content from.
+
+    WHY THIS EXISTS (vs just passing raw strings):
+    The synthesizer needs both the text AND the URL (for citations in
+    Phase 4). Passing (url, text) tuples is fragile — Pydantic gives
+    us a named, validated container.
+    """
+    url: str = Field(description="The URL this content was extracted from.")
+    text: str = Field(description="The extracted text content from the page.")
+
+
+class AgentResult(BaseModel):
+    """
+    The complete result of an agent run — returned by the loop.
+
+    Captures not just the answer but the metadata about HOW the agent
+    arrived at it: how many iterations, what sources, what queries.
+    This metadata is essential for:
+    1. Debugging (why was the answer bad?)
+    2. Evaluation (did the agent use enough sources?)
+    3. Display (show the user what the agent did)
+    """
+    question: str = Field(description="The original question asked.")
+    answer: str = Field(description="The synthesized answer.")
+    sources: list[SourceDocument] = Field(
+        default_factory=list,
+        description="All sources read during the research process."
+    )
+    queries_used: list[str] = Field(
+        default_factory=list,
+        description="All search queries executed during the research."
+    )
+    iterations: int = Field(
+        default=0,
+        description="Number of search-read-decide iterations completed."
+    )
+    hit_cap: bool = Field(
+        default=False,
+        description="Whether the loop was stopped by the iteration cap (True) or by the LLM deciding it had enough info (False)."
+    )
