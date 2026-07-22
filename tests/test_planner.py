@@ -104,7 +104,7 @@ class TestPlannerLoopIntegration:
                 next_query=None,
             )
 
-        def fake_synthesize(question, texts):
+        def fake_synthesize(question, sources):
             return "Synthesized answer."
 
         planned_queries = ["aspect one", "aspect two", "aspect three"]
@@ -152,7 +152,7 @@ class TestPlannerLoopIntegration:
                 next_query=None,
             )
 
-        def fake_synthesize(question, texts):
+        def fake_synthesize(question, sources):
             return "Answer."
 
         # Planner returns just the original question (fallback behavior)

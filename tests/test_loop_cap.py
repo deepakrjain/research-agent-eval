@@ -59,8 +59,8 @@ class TestLoopCap:
                 success=True,
             )
 
-        def fake_synthesize(question, texts):
-            return f"Synthesized answer from {len(texts)} sources."
+        def fake_synthesize(question, sources):
+            return f"Synthesized answer from {len(sources)} sources."
 
         cap = 3  # Small cap for fast testing
         result = run_agent_loop(
@@ -104,7 +104,7 @@ class TestLoopCap:
                 success=True,
             )
 
-        def fake_synthesize(question, texts):
+        def fake_synthesize(question, sources):
             return "Complete answer."
 
         result = run_agent_loop(
@@ -143,7 +143,7 @@ class TestLoopCap:
                 success=True,
             )
 
-        def fake_synthesize(question, texts):
+        def fake_synthesize(question, sources):
             return "Answer from limited search."
 
         result = run_agent_loop(

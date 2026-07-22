@@ -110,3 +110,15 @@ returns malformed JSON or the API call fails, we don't want the entire
 agent to crash. Falling back to the original question means we're
 effectively running the Phase 2 behavior (no decomposition), which still
 produces answers — just less well-targeted ones.
+
+---
+
+## 2026-07-22 — Cited Synthesis and Self-Correction (Phase 4)
+
+**Decision:** Force JSON output for synthesis to extract both the answer and the citations used.
+
+**Why:** It is extremely difficult to parse a plain-text answer to reliably figure out which sources were cited, especially if the LLM hallucinated a citation like `[5]` when we only have 3 sources. Forcing JSON `{"answer_text": "...", "citations_used": [...]}` makes parsing deterministic and easy.
+
+**Decision:** Add a retry loop to self-correct hallucinated citations.
+
+**Why:** LLMs hallucinate citations frequently, blending sources or citing source `[N]` out of habit when it doesn't exist. Instead of silently outputting a broken citation or failing, we catch the `ValidationError` and feed the error back to the LLM. Doing this "self-correction" inside `synthesizer.py` isolates the complexity from the main agent loop.

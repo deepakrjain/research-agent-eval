@@ -101,6 +101,23 @@ class SearchDecision(BaseModel):
     )
 
 
+class SynthesizedAnswer(BaseModel):
+    """
+    The structured answer from the synthesizer.
+
+    WHY THIS EXISTS:
+    We need the LLM to provide BOTH the text of the answer AND a structured
+    list of the citations it used, so we can validate that the citations
+    actually exist in our source list before returning the final result.
+    """
+    answer_text: str = Field(
+        description="The synthesized answer with inline numbered citations like [1] or [1][2]."
+    )
+    citations_used: list[int] = Field(
+        description="A list of source numbers (1-indexed) that were actually cited in the answer_text."
+    )
+
+
 class SourceDocument(BaseModel):
     """
     A single source that the agent has read and extracted content from.

@@ -63,7 +63,7 @@ class TestQueryDedup:
                 success=True,
             )
 
-        def fake_synthesize(question, texts):
+        def fake_synthesize(question, sources):
             return "Answer."
 
         result = run_agent_loop(
@@ -108,7 +108,7 @@ class TestQueryDedup:
                 success=True,
             )
 
-        def fake_synthesize(question, texts):
+        def fake_synthesize(question, sources):
             return "Answer."
 
         result = run_agent_loop(
@@ -164,7 +164,7 @@ class TestURLDedup:
                 success=True,
             )
 
-        def fake_synthesize(question, texts):
+        def fake_synthesize(question, sources):
             return "Answer."
 
         result = run_agent_loop(

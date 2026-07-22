@@ -293,8 +293,8 @@ def run_agent_loop(
     # ---- SYNTHESIZE ----
     console.print(f"\n[bold blue]🧠 Synthesizing final answer from {len(all_sources)} sources...[/bold blue]\n")
 
-    if all_source_texts:
-        answer = synthesize_fn(question, all_source_texts)
+    if all_sources:
+        answer = synthesize_fn(question, all_sources)
     else:
         answer = "Unable to find sufficient information to answer this question."
 
