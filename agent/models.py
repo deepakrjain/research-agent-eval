@@ -160,3 +160,26 @@ class AgentResult(BaseModel):
         default=False,
         description="Whether the loop was stopped by the iteration cap (True) or by the LLM deciding it had enough info (False)."
     )
+
+
+class EvaluationScore(BaseModel):
+    """
+    The structured output of the independent LLM judge.
+    
+    WHY STRUCTURED OUTPUT FOR EVALS:
+    If a judge just returns "This is a good answer, 4/5", we have to
+    parse that text to extract the 4. By using a Pydantic model, we
+    guarantee we get an integer score, a boolean for hallucination,
+    and a clear reasoning string, making aggregate statistics trivial
+    to compute.
+    """
+    score: int = Field(
+        ge=1, le=5,
+        description="Score from 1 (completely wrong/irrelevant) to 5 (perfectly accurate and comprehensive) compared to the reference answer."
+    )
+    is_hallucinated: bool = Field(
+        description="True if the agent made factual claims that contradict or are entirely unsupported by the reference answer."
+    )
+    reasoning: str = Field(
+        description="A brief explanation of why this score was given."
+    )
