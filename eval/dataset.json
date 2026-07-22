@@ -1,0 +1,122 @@
+[
+  {
+    "id": "Q01",
+    "type": "factual",
+    "question": "What is the capital of Australia, and what year was it chosen as the capital?",
+    "reference_answer": "Canberra is the capital of Australia. It was chosen as the capital in 1908."
+  },
+  {
+    "id": "Q02",
+    "type": "factual",
+    "question": "Who won the Nobel Prize in Physics in 2023, and what was it awarded for?",
+    "reference_answer": "The 2023 Nobel Prize in Physics was awarded to Pierre Agostini, Ferenc Krausz, and Anne L'Huillier for experimental methods that generate attosecond pulses of light for the study of electron dynamics in matter."
+  },
+  {
+    "id": "Q03",
+    "type": "comparative",
+    "question": "Compare the core technical differences between React and Vue.js for web development.",
+    "reference_answer": "React uses a virtual DOM, JSX for rendering, and relies heavily on external libraries for state management (like Redux) and routing. Vue.js also uses a virtual DOM but employs template-based syntax by default (though JSX is supported), and provides officially maintained libraries for state (Pinia/Vuex) and routing (Vue Router). React's architecture is more functional, while Vue offers a more approachable, reactive object-oriented style."
+  },
+  {
+    "id": "Q04",
+    "type": "comparative",
+    "question": "What are the main differences between Proof of Work and Proof of Stake in blockchain consensus?",
+    "reference_answer": "Proof of Work (PoW) requires miners to solve complex mathematical puzzles using computational power to validate transactions and create new blocks, which is highly energy-intensive (e.g., Bitcoin). Proof of Stake (PoS) chooses validators based on the number of coins they hold and are willing to 'stake' as collateral, requiring vastly less energy and scaling better (e.g., Ethereum 2.0)."
+  },
+  {
+    "id": "Q05",
+    "type": "multi-hop",
+    "question": "What is the name of the company founded by the person who created the Linux kernel, and what is its primary product?",
+    "reference_answer": "Linus Torvalds created the Linux kernel. He is associated with the Linux Foundation (a non-profit), but he did not found a commercial company that sells a primary product. (Note: If the agent finds a different entity, it must be evaluated on accuracy based on Torvalds' history)."
+  },
+  {
+    "id": "Q06",
+    "type": "multi-hop",
+    "question": "Who was the lead actor in the movie that won the Academy Award for Best Picture in 1994, and what was his character's name?",
+    "reference_answer": "The Academy Award for Best Picture in 1994 (the 66th Academy Awards) was won by Schindler's List. The lead actor was Liam Neeson, who played the character Oskar Schindler."
+  },
+  {
+    "id": "Q07",
+    "type": "recent-events",
+    "question": "What were the main outcomes of the COP28 climate summit held in Dubai?",
+    "reference_answer": "COP28 resulted in a historic agreement to 'transition away from fossil fuels in energy systems' in a just, orderly, and equitable manner. It also operationalized a Loss and Damage fund to help vulnerable countries, and included pledges to triple renewable energy capacity and double energy efficiency by 2030."
+  },
+  {
+    "id": "Q08",
+    "type": "recent-events",
+    "question": "Which team won the Super Bowl in 2024, and who was named the MVP?",
+    "reference_answer": "The Kansas City Chiefs won Super Bowl LVIII in 2024. Patrick Mahomes was named the Super Bowl MVP."
+  },
+  {
+    "id": "Q09",
+    "type": "factual",
+    "question": "What is the James Webb Space Telescope's primary mirror made of, and how wide is it?",
+    "reference_answer": "The James Webb Space Telescope's primary mirror is made of beryllium coated with a thin layer of gold. It is 6.5 meters (21.3 feet) across."
+  },
+  {
+    "id": "Q10",
+    "type": "comparative",
+    "question": "Compare the symptoms of a common cold versus the flu.",
+    "reference_answer": "A common cold typically features a gradual onset of symptoms like a runny or stuffy nose, sneezing, and a mild sore throat, with rare fevers. The flu (influenza) comes on abruptly and is characterized by a high fever, severe muscle or body aches, chills, extreme fatigue, and a dry cough."
+  },
+  {
+    "id": "Q11",
+    "type": "multi-hop",
+    "question": "Which element on the periodic table has the atomic number that matches the number of US states, and what is its symbol?",
+    "reference_answer": "The US has 50 states. The element with atomic number 50 is Tin, and its chemical symbol is Sn."
+  },
+  {
+    "id": "Q12",
+    "type": "factual",
+    "question": "How long does it take for light from the Sun to reach Earth?",
+    "reference_answer": "It takes approximately 8 minutes and 20 seconds (or about 500 seconds) for light from the Sun to reach Earth."
+  },
+  {
+    "id": "Q13",
+    "type": "multi-hop",
+    "question": "What is the tallest building in the city where the 2012 Summer Olympics were held?",
+    "reference_answer": "The 2012 Summer Olympics were held in London. The tallest building in London is The Shard."
+  },
+  {
+    "id": "Q14",
+    "type": "comparative",
+    "question": "What are the key differences between a Roth IRA and a Traditional IRA?",
+    "reference_answer": "Contributions to a Traditional IRA are often tax-deductible in the year they are made, but withdrawals in retirement are taxed as ordinary income. Contributions to a Roth IRA are made with after-tax money (no upfront deduction), but qualified withdrawals in retirement are completely tax-free."
+  },
+  {
+    "id": "Q15",
+    "type": "factual",
+    "question": "What is the deepest part of the world's oceans, and how deep is it?",
+    "reference_answer": "The deepest part of the world's oceans is the Challenger Deep, located in the Mariana Trench. It is approximately 10,900 to 10,920 meters (about 35,800 feet) deep."
+  },
+  {
+    "id": "Q16",
+    "type": "recent-events",
+    "question": "Who won the 2023 Women's World Cup, and which country hosted the tournament?",
+    "reference_answer": "Spain won the 2023 FIFA Women's World Cup. The tournament was co-hosted by Australia and New Zealand."
+  },
+  {
+    "id": "Q17",
+    "type": "multi-hop",
+    "question": "Who wrote the novel '1984', and what was the author's real name?",
+    "reference_answer": "The novel '1984' was written by George Orwell. His real birth name was Eric Arthur Blair."
+  },
+  {
+    "id": "Q18",
+    "type": "comparative",
+    "question": "Compare the dietary habits of a herbivore and an omnivore.",
+    "reference_answer": "A herbivore's diet consists exclusively of plant matter, such as leaves, grass, and fruits. An omnivore's diet includes both plant matter and animal-based food (meat/insects)."
+  },
+  {
+    "id": "Q19",
+    "type": "factual",
+    "question": "What is the distance of a standard marathon in miles and kilometers?",
+    "reference_answer": "A standard marathon is 26.2 miles, which is equivalent to 42.195 kilometers."
+  },
+  {
+    "id": "Q20",
+    "type": "multi-hop",
+    "question": "What is the currency of the country that has the largest landmass in the world?",
+    "reference_answer": "The country with the largest landmass in the world is Russia. Its currency is the Russian Ruble."
+  }
+]

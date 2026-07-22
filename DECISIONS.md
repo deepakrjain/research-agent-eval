@@ -122,3 +122,15 @@ produces answers — just less well-targeted ones.
 **Decision:** Add a retry loop to self-correct hallucinated citations.
 
 **Why:** LLMs hallucinate citations frequently, blending sources or citing source `[N]` out of habit when it doesn't exist. Instead of silently outputting a broken citation or failing, we catch the `ValidationError` and feed the error back to the LLM. Doing this "self-correction" inside `synthesizer.py` isolates the complexity from the main agent loop.
+
+---
+
+## 2026-07-22 — Evaluation Harness and Benchmark (Phase 5)
+
+**Decision:** Build a custom JSON benchmark dataset with reference answers.
+
+**Why:** Evaluating an AI agent on vibes ("it looks like a good answer") is how you end up with regressions. By creating a fixed benchmark of 20 questions across different types (factual, comparative, multi-hop, recent events), we have a stable baseline. If we change the planner prompt or the loop cap later, we run the benchmark and mathematically prove if it improved or degraded.
+
+**Decision:** Save benchmark results as JSON Lines (.jsonl) with timestamped filenames.
+
+**Why:** We must never overwrite past runs. By saving each run as a new timestamped `.jsonl` file in `results/`, we build a historical record of the agent's performance. Writing as `.jsonl` means we can append results line-by-line as the agent runs, ensuring that if the script crashes on question 15, we don't lose the results for questions 1-14.
