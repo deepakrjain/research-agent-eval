@@ -36,6 +36,7 @@ from agent.searcher import search
 from agent.extractor import extract_content
 from agent.synthesizer import synthesize
 from agent.models import SearchDecision, SourceDocument, AgentResult
+from agent.planner import decompose_question
 
 console = Console()
 
@@ -148,6 +149,7 @@ def run_agent_loop(
     _search_fn=None,
     _extract_fn=None,
     _synthesize_fn=None,
+    _planner_fn=None,
 ) -> AgentResult:
     """
     The main search-read-decide loop.
@@ -159,6 +161,7 @@ def run_agent_loop(
         _search_fn: Injectable search function (for testing).
         _extract_fn: Injectable extraction function (for testing).
         _synthesize_fn: Injectable synthesis function (for testing).
+        _planner_fn: Injectable planner function (for testing).
 
     Returns:
         AgentResult with the answer, sources, and loop metadata.
@@ -175,12 +178,21 @@ def run_agent_loop(
     search_fn = _search_fn or search
     extract_fn = _extract_fn or extract_content
     synthesize_fn = _synthesize_fn or synthesize
+    planner_fn = _planner_fn or decompose_question
 
     # Initialize the Groq client once (reused across all decision calls)
     groq_client = None
     if decision_fn is None:
         groq_client = Groq(api_key=get_groq_api_key())
         decision_fn = lambda q, queries, texts: make_decision(q, queries, texts, groq_client)
+
+    # ---- Phase 3: Query Decomposition ----
+    # Before entering the loop, decompose the question into focused
+    # sub-queries. These become the initial queries for the loop.
+    # The decide step only kicks in AFTER all sub-queries are processed.
+    console.print(f"\n[bold magenta]📋 Decomposing question into sub-queries...[/bold magenta]")
+    plan = planner_fn(question)
+    pending_queries = list(plan.sub_queries)  # Queue of queries to process
 
     # ---- State tracking ----
     all_sources: list[SourceDocument] = []       # All successfully extracted sources
@@ -189,8 +201,8 @@ def run_agent_loop(
     urls_seen: set[str] = set()                  # Track URLs for dedup
     hit_cap = False
 
-    # The initial search query is the question itself
-    current_query = question
+    # Pull the first query from the planner's queue
+    current_query = pending_queries.pop(0) if pending_queries else question
 
     for iteration in range(1, max_iterations + 1):
         console.print(f"\n[bold cyan]━━━ Iteration {iteration}/{max_iterations} ━━━[/bold cyan]")
@@ -248,6 +260,15 @@ def run_agent_loop(
         console.print(f"[green]  → {new_sources_this_round} new sources extracted[/green]")
 
         # ---- DECIDE: Do we have enough? ----
+        # If we still have pending sub-queries from the planner, use those
+        # instead of asking the LLM. The planner already determined these
+        # are needed, so we process them first.
+        if pending_queries:
+            current_query = pending_queries.pop(0)
+            console.print(f"[magenta]📋 Next planned sub-query: {current_query}[/magenta]")
+            continue
+
+        # All planned sub-queries processed — now ask the LLM
         console.print(f"[blue]🤔 Evaluating gathered information...[/blue]")
         decision = decision_fn(question, queries_used, all_source_texts)
 

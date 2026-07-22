@@ -26,7 +26,50 @@ Centralizing models in one file means:
 3. Easy to audit what the LLM is expected to return
 """
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
+
+
+class QueryPlan(BaseModel):
+    """
+    The planner's decomposition of a broad question into sub-queries.
+
+    WHY DECOMPOSE:
+    A broad question like "Compare React and Vue for enterprise apps"
+    is hard to answer with a single search. The planner breaks it into
+    focused sub-queries like:
+      - "React enterprise features scalability"
+      - "Vue enterprise features scalability"
+      - "React vs Vue performance benchmarks"
+
+    Each sub-query targets a specific ASPECT of the question, producing
+    more relevant search results than one vague query.
+
+    WHY CONSTRAINED TO 2-4:
+    - Less than 2: You're not decomposing at all — defeats the purpose
+    - More than 4: Diminishing returns + wastes loop iterations. Each
+      sub-query costs a search + extraction round. 4 sub-queries out
+      of a 5-iteration cap leaves only 1 iteration for follow-up.
+    """
+    sub_queries: list[str] = Field(
+        description="List of 2-4 focused search queries that together cover all aspects of the original question."
+    )
+    reasoning: str = Field(
+        description="Brief explanation of how the question was decomposed and what each sub-query targets."
+    )
+
+    @field_validator("sub_queries")
+    @classmethod
+    def validate_sub_query_count(cls, v):
+        """Enforce the 2-4 sub-query constraint."""
+        if len(v) < 1:
+            raise ValueError("Must have at least 1 sub-query")
+        if len(v) > 6:
+            # Hard cap — if the model returns 20, truncate to 6
+            # (we use 6 instead of 4 as a soft ceiling to avoid
+            # throwing away genuinely useful decompositions that
+            # are slightly over the target)
+            v = v[:6]
+        return v
 
 
 class SearchDecision(BaseModel):

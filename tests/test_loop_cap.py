@@ -22,6 +22,7 @@ from agent.loop import run_agent_loop
 from agent.models import SearchDecision, AgentResult
 from agent.searcher import SearchResult
 from agent.extractor import ExtractedContent
+from tests.conftest import make_fake_planner
 
 
 class TestLoopCap:
@@ -69,6 +70,7 @@ class TestLoopCap:
             _search_fn=fake_search,
             _extract_fn=fake_extract,
             _synthesize_fn=fake_synthesize,
+            _planner_fn=make_fake_planner(),
         )
 
         assert isinstance(result, AgentResult)
@@ -112,6 +114,7 @@ class TestLoopCap:
             _search_fn=fake_search,
             _extract_fn=fake_extract,
             _synthesize_fn=fake_synthesize,
+            _planner_fn=make_fake_planner(),
         )
 
         assert result.iterations == 1
@@ -150,6 +153,7 @@ class TestLoopCap:
             _search_fn=fake_search,
             _extract_fn=fake_extract,
             _synthesize_fn=fake_synthesize,
+            _planner_fn=make_fake_planner(),
         )
 
         assert result.iterations == 1

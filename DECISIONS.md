@@ -81,3 +81,32 @@ level is fragile — it couples tests to the internal implementation of those
 libraries. Injecting fake functions at the loop level means our tests don't
 care whether we use Groq, OpenAI, or a local model. If we swap providers,
 the tests still work unchanged.
+
+---
+
+## 2026-07-22 — Query decomposition strategy (Phase 3)
+
+**Decision:** Run the planner BEFORE the loop, not inside it.
+
+**Why:** Planning is a one-time upfront cost. If we planned inside the
+loop, we'd re-decompose the question every iteration (same input → same
+output → wasted LLM call). By planning once and feeding sub-queries into
+the loop as a queue, we get focused searches without repeated planning.
+
+**Decision:** Target 2-4 sub-queries, soft cap at 6 via Pydantic validator.
+
+**Why:** With a 5-iteration loop cap, each sub-query consumes one
+iteration. If the planner generates 4 sub-queries, that leaves only 1
+iteration for the decide-LLM to request follow-up searches. The 2-4
+target balances thoroughness (multiple angles) with flexibility (room for
+the agent to course-correct). The validator truncates at 6 rather than
+raising an error, because a slightly-over plan is better than a crashed
+agent.
+
+**Decision:** On planner failure, fall back to using the original question.
+
+**Why:** The planner is an optimization, not a requirement. If the LLM
+returns malformed JSON or the API call fails, we don't want the entire
+agent to crash. Falling back to the original question means we're
+effectively running the Phase 2 behavior (no decomposition), which still
+produces answers — just less well-targeted ones.

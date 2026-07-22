@@ -24,6 +24,7 @@ from agent.loop import run_agent_loop
 from agent.models import SearchDecision
 from agent.searcher import SearchResult
 from agent.extractor import ExtractedContent
+from tests.conftest import make_fake_planner
 
 
 class TestQueryDedup:
@@ -72,6 +73,7 @@ class TestQueryDedup:
             _search_fn=fake_search,
             _extract_fn=fake_extract,
             _synthesize_fn=fake_synthesize,
+            _planner_fn=make_fake_planner(),
         )
 
         # The query "Test question?" should only appear ONCE in queries_used
@@ -116,6 +118,7 @@ class TestQueryDedup:
             _search_fn=fake_search,
             _extract_fn=fake_extract,
             _synthesize_fn=fake_synthesize,
+            _planner_fn=make_fake_planner(),
         )
 
         # All queries should be unique
@@ -171,6 +174,7 @@ class TestURLDedup:
             _search_fn=fake_search,
             _extract_fn=fake_extract,
             _synthesize_fn=fake_synthesize,
+            _planner_fn=make_fake_planner(),
         )
 
         # The extract function should only have been called ONCE for this URL
