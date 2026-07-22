@@ -81,12 +81,22 @@ def extract_content(url: str) -> ExtractedContent:
             url,
             timeout=PAGE_FETCH_TIMEOUT,
             headers={
-                # Some sites block requests without a User-Agent
+                # WHY FULL BROWSER HEADERS:
+                # Many sites use bot-detection middleware that looks at
+                # more than just User-Agent. If Accept, Accept-Language,
+                # or DNT are missing, the 403 rate goes up dramatically.
+                # These headers mimic what Chrome 120 actually sends.
                 "User-Agent": (
                     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
                     "AppleWebKit/537.36 (KHTML, like Gecko) "
                     "Chrome/120.0.0.0 Safari/537.36"
-                )
+                ),
+                "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+                "Accept-Language": "en-US,en;q=0.9",
+                "Accept-Encoding": "gzip, deflate, br",
+                "DNT": "1",
+                "Connection": "keep-alive",
+                "Upgrade-Insecure-Requests": "1",
             },
         )
         response.raise_for_status()
@@ -158,9 +168,17 @@ def _extract_text_from_html(html: str) -> str:
             tag.decompose()
 
     # Remove elements with junk-indicating class names or IDs
+    # WHY THE hasattr GUARD:
+    # soup.find_all(True) can return NavigableString nodes (raw text nodes
+    # that have no .get() method) alongside Tag nodes. After calling
+    # decompose() on parent elements, their children may become detached
+    # NavigableStrings. Without the guard, this causes:
+    #   AttributeError: 'NoneType' object has no attribute 'get'
     for element in soup.find_all(True):
-        classes = " ".join(element.get("class", []))
-        element_id = element.get("id", "")
+        if not hasattr(element, "get"):
+            continue
+        classes = " ".join(element.get("class", []) or [])
+        element_id = element.get("id", "") or ""
         combined = f"{classes} {element_id}".lower()
 
         if any(junk in combined for junk in JUNK_CLASSES):

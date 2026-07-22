@@ -3,7 +3,7 @@ groq>=0.9.0
 google-generativeai>=0.7.0
 
 # Web search & scraping
-duckduckgo-search>=6.0.0
+ddgs>=3.0.0
 requests>=2.31.0
 beautifulsoup4>=4.12.0
 
