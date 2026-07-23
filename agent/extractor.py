@@ -129,9 +129,10 @@ def extract_content(url: str) -> ExtractedContent:
     try:
         text = _extract_text_from_html(response.text)
     except Exception as e:
+        import traceback
         return ExtractedContent(
             url=url, text="", success=False,
-            error=f"Parse error: {str(e)[:200]}"
+            error=f"Parse error: {str(e)[:200]} | Traceback: {traceback.format_exc()}"
         )
 
     # --- Step 4: Validate we got something useful ---
@@ -175,10 +176,11 @@ def _extract_text_from_html(html: str) -> str:
     # NavigableStrings. Without the guard, this causes:
     #   AttributeError: 'NoneType' object has no attribute 'get'
     for element in soup.find_all(True):
-        if not hasattr(element, "get"):
+        if not hasattr(element, "attrs") or element.attrs is None:
             continue
-        classes = " ".join(element.get("class", []) or [])
-        element_id = element.get("id", "") or ""
+            
+        classes = " ".join(element.attrs.get("class", []) or [])
+        element_id = element.attrs.get("id", "") or ""
         combined = f"{classes} {element_id}".lower()
 
         if any(junk in combined for junk in JUNK_CLASSES):

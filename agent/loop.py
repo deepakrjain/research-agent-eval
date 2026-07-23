@@ -28,6 +28,7 @@ GUARDRAILS:
 """
 
 import json
+import concurrent.futures
 from groq import Groq
 from rich.console import Console
 
@@ -226,36 +227,49 @@ def run_agent_loop(
 
         # ---- ACT: Extract (with URL dedup) ----
         new_sources_this_round = 0
+        
+        # Prepare valid URLs to fetch
+        to_fetch = []
         for r in results:
             url = r.url if hasattr(r, 'url') else r.get('url', '')
             title = r.title if hasattr(r, 'title') else r.get('title', '')
 
-            # DEDUP: Skip already-fetched URLs
             if url in urls_seen:
                 console.print(f"  [dim]↩ Already read: {title}[/dim]")
                 continue
 
             urls_seen.add(url)
-            content = extract_fn(url)
+            to_fetch.append((url, title))
 
-            if hasattr(content, 'success'):
-                # Real ExtractedContent object
-                if content.success:
-                    source = SourceDocument(url=url, text=content.text)
-                    all_sources.append(source)
-                    all_source_texts.append(content.text)
-                    new_sources_this_round += 1
-                    console.print(f"  [green]✓[/green] {title} ({len(content.text)} chars)")
-                else:
-                    console.print(f"  [red]✗[/red] {title}: {content.error}")
-            else:
-                # Mock/test content (might be a string or dict)
-                text = content if isinstance(content, str) else str(content)
-                if text:
-                    source = SourceDocument(url=url, text=text)
-                    all_sources.append(source)
-                    all_source_texts.append(text)
-                    new_sources_this_round += 1
+        # Fetch concurrently
+        if to_fetch:
+            with concurrent.futures.ThreadPoolExecutor(max_workers=max(1, len(to_fetch))) as executor:
+                future_to_url = {executor.submit(extract_fn, url): (url, title) for url, title in to_fetch}
+                
+                for future in concurrent.futures.as_completed(future_to_url):
+                    url, title = future_to_url[future]
+                    try:
+                        content = future.result()
+                        if hasattr(content, 'success'):
+                            # Real ExtractedContent object
+                            if content.success:
+                                source = SourceDocument(url=url, text=content.text)
+                                all_sources.append(source)
+                                all_source_texts.append(content.text)
+                                new_sources_this_round += 1
+                                console.print(f"  [green]✓[/green] {title} ({len(content.text)} chars)")
+                            else:
+                                console.print(f"  [red]✗[/red] {title}: {content.error}")
+                        else:
+                            # Mock/test content (might be a string or dict)
+                            text = content if isinstance(content, str) else str(content)
+                            if text:
+                                source = SourceDocument(url=url, text=text)
+                                all_sources.append(source)
+                                all_source_texts.append(text)
+                                new_sources_this_round += 1
+                    except Exception as exc:
+                        console.print(f"  [red]✗[/red] {title}: Fetch generated an exception: {exc}")
 
         console.print(f"[green]  → {new_sources_this_round} new sources extracted[/green]")
 

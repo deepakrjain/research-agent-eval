@@ -53,5 +53,5 @@ JUDGE_MODEL = "llama-3.1-8b-instant"
 # ---- Agent defaults ----
 MAX_SEARCH_RESULTS = 5       # results per DuckDuckGo query
 MAX_LOOP_ITERATIONS = 5      # hard cap on search-read-decide cycles
-PAGE_FETCH_TIMEOUT = 10      # seconds before giving up on a page
-MAX_CONTENT_LENGTH = 3000    # chars of extracted text to keep per page
+PAGE_FETCH_TIMEOUT = 4       # seconds before giving up on a page
+MAX_CONTENT_LENGTH = 1500    # chars of extracted text to keep per page
