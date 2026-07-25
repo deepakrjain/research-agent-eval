@@ -156,9 +156,11 @@ st.markdown("""
         <span class="badge">Zero Cost Stack</span>
     </div>
     <h1 class="hero-title">Autonomous Research Agent & Eval Benchmark</h1>
-    <p class="hero-subtitle">Iterative Search-Read-Decide Loop with Ground-Truth LLM Evaluation</p>
+    <p class="hero-subtitle">Iterative Search-Read-Decide Loop with Ground-Truth LLM Evaluation • Built by Deepak</p>
 </div>
 """, unsafe_allow_html=True)
+
+st.warning("⚠️ **Note on API Limits:** This portfolio demo is running on Groq's Free API tier. If the agent fails or hangs, the daily token limit may have been reached. Please try again later!")
 
 # Sidebar Configuration
 st.sidebar.title("⚙️ System Status & Controls")
@@ -172,12 +174,6 @@ st.sidebar.markdown("---")
 st.sidebar.subheader("🤖 Agent Settings")
 max_iters = st.sidebar.slider("Max Loop Iterations", min_value=1, max_value=10, value=MAX_LOOP_ITERATIONS)
 st.sidebar.info(f"**Model:** {GROQ_MODEL}\n\n**Search Engine:** DuckDuckGo (Zero key)\n\n**Parser:** Pydantic Guardrails")
-
-st.sidebar.markdown("---")
-st.sidebar.warning("⚠️ **Note on API Limits:**\n\nThis demo is running on Groq's Free API tier. If the agent fails or hangs, the daily token limit may have been reached. Please try again later!")
-
-st.sidebar.markdown("---")
-st.sidebar.caption("Built by Deepak | Powered by Groq & Streamlit")
 
 
 # Navigation Tabs
