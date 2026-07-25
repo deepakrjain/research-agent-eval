@@ -174,10 +174,10 @@ max_iters = st.sidebar.slider("Max Loop Iterations", min_value=1, max_value=10, 
 st.sidebar.info(f"**Model:** {GROQ_MODEL}\n\n**Search Engine:** DuckDuckGo (Zero key)\n\n**Parser:** Pydantic Guardrails")
 
 st.sidebar.markdown("---")
-st.sidebar.warning("⚠️ **Note on API Limits:**\n\nThis portfolio demo is running on Groq's Free API tier. If the agent fails or hangs, the daily token limit may have been reached. Please try again later!")
+st.sidebar.warning("⚠️ **Note on API Limits:**\n\nThis demo is running on Groq's Free API tier. If the agent fails or hangs, the daily token limit may have been reached. Please try again later!")
 
 st.sidebar.markdown("---")
-st.sidebar.caption("Built with ❤️ by Deepak | Powered by Groq & Streamlit")
+st.sidebar.caption("Built by Deepak | Powered by Groq & Streamlit")
 
 
 # Navigation Tabs
