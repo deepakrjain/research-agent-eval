@@ -143,7 +143,8 @@ class TestSynthesizeIntegration:
 
         # 1 initial call + 2 retries = 3 calls
         assert call_count == 3
-        # It should still output the text
-        assert "Always wrong [2]." in result
-        # But it should say no specific sources were cited (since 2 was invalid)
+        # The answer text should be present but invalid citation [2] should be stripped
+        assert "Always wrong" in result
+        assert "[2]" not in result
+        # And no valid sources should be listed
         assert "(No specific sources were cited in the answer.)" in result
