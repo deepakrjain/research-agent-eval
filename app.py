@@ -229,8 +229,8 @@ with tab_playground:
                 status_box.update(label="📋 Step 1: Decomposing question into sub-queries...", state="running")
                 plan = decompose_question(user_query)
                 st.write("**Planned Sub-Queries:**")
-                for sq in plan.sub_queries:
-                    st.write(f"- 🔹 {sq}")
+                for i, sq in enumerate(plan.sub_queries, 1):
+                    st.write(f"{i}. {sq}")
                 
                 # Execute agent loop while displaying logs
                 status_box.update(label="🔍 Step 2: Executing Search-Read-Decide Loop...", state="running")
