@@ -240,7 +240,7 @@ with tab_playground:
                 status_box.update(label=f"✅ Research Complete in {elapsed}s!", state="complete", expanded=False)
 
             st.markdown("---")
-            st.markdown("### 📝 Synthesized Answer")
+            st.markdown("### 📝 Research Summary")
             st.markdown(result.answer)
 
             st.markdown("### 📊 Metadata & Sources")

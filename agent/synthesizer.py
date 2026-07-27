@@ -36,14 +36,19 @@ Rules:
 2. Every factual claim MUST be followed by an inline citation to the source it came from, formatted as [1], [2], etc.
 3. If multiple sources support a claim, cite them all: [1][2].
 4. If the sources don't contain enough information to fully answer the question, say so explicitly.
-5. Be concise and direct. Aim for 2-4 paragraphs.
-6. Do not include phrases like "Based on the sources" — just answer naturally.
-7. Only use citation numbers that correspond to the provided sources.
+5. Do not include phrases like "Based on the sources" — just answer naturally.
+6. Only use citation numbers that correspond to the provided sources.
+
+FORMATTING — You MUST follow this structure in your answer_text:
+- Start with a **single bold summary sentence** that directly answers the question.
+- Follow it with a blank line, then present the key findings as a **markdown bullet list** (use "- " for each bullet).
+- Each bullet should be one concise finding with its citation(s) at the END of the bullet, like: "Finding text [1][2]"
+- Aim for 3-6 bullets. Do NOT write dense paragraphs.
 
 You MUST respond with a JSON object containing exactly two fields:
 {
-    "answer_text": "Your complete answer here, with inline citations like [1].",
-    "citations_used": [1] // A list of integers representing the source numbers you actually cited
+    "answer_text": "**Summary sentence.**\n\n- First key finding [1]\n- Second key finding [2][3]\n- Third key finding [4]",
+    "citations_used": [1, 2, 3, 4]
 }
 """
 
