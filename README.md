@@ -1,5 +1,7 @@
 # Research Agent: Autonomous AI with Self-Evaluation
 
+[![Live Demo](https://img.shields.io/badge/Live_Demo-Try_it_out-blue?style=for-the-badge)](https://research-agent-eval.streamlit.app/)
+
 A fully autonomous, self-correcting AI research agent built from scratch in Python to demonstrate core Agentic AI principles. Rather than being a thin wrapper around a single LLM API call, this agent manages its own state, decomposes complex problems, browses the live internet, detects its own hallucinations, and decides when it has enough information to synthesize a final cited answer.
 
 This project also includes a complete **Evaluation Harness**, using an independent "LLM-as-a-Judge" to scientifically benchmark the agent's accuracy and tool reliability.
@@ -41,9 +43,12 @@ You cannot build a reliable agent on "vibes." Changing a prompt to fix one bug m
 ## 🛠️ Engineering for Tool Reliability
 
 During evaluation, we discovered that the agent's intelligence was bottlenecked by its tools. We implemented robust production engineering patterns:
+*   **Concurrent Web Scraping:** Replaced sequential requests with `ThreadPoolExecutor`, fetching multiple search results simultaneously to drop iteration latency from ~15s to ~3s.
+*   **Context Window Optimization:** Aggressive timeouts and strict character limits (1500 chars per page) ensure the agent doesn't blow through API token limits or lose reasoning capacity in massive contexts.
 *   **Exponential Backoff Retries:** The `searcher.py` gracefully handles rate limits by backing off and retrying failed searches, preventing catastrophic failures during bulk evaluation runs.
-*   **Browser Fingerprinting:** The `extractor.py` sends a complete Chrome 120 HTTP header set (Accept, Accept-Language, DNT) to bypass 403 Forbidden bot-detection middlewares on modern websites.
+*   **Browser Fingerprinting:** The `extractor.py` sends a complete Chrome 120 HTTP header set to bypass 403 Forbidden bot-detection middlewares on modern websites.
 *   **Resilient HTML Parsing:** BeautifulSoup extraction includes fallback guards for detached DOM nodes to prevent `NoneType` crashes on complex Wikipedia structures.
+*   **Keep-Alive Infrastructure:** Includes a GitHub Actions CRON job to automatically ping the hosted Streamlit app twice a day, preventing cold starts on the free tier.
 
 ---
 
@@ -70,12 +75,18 @@ GROQ_API_KEY=gsk_your_api_key_here
 
 ### Usage
 
-**1. Run the Interactive Agent**
+**1. Run the Live Web Dashboard (Recommended)**
+Provides a beautiful, interactive interface to test the agent, view evaluation metrics, and explore the architecture.
+```bash
+streamlit run app.py
+```
+
+**2. Run the Interactive CLI Agent**
 ```bash
 python -m agent.run_agent "What is the capital of Australia?"
 ```
 
-**2. Run the Benchmark Evaluation**
+**3. Run the Benchmark Evaluation**
 ```bash
 # Execute the agent against the 20-question dataset (takes ~10 mins)
 python -m eval.runner
