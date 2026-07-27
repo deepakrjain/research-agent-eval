@@ -130,43 +130,43 @@ Please synthesize a clear, accurate, and cited answer to the question."""
                 else:
                     console.print("[red]⚠ Model failed to fix citations after retries. Proceeding anyway.[/red]")
             
-            # Formatting the final output
+            # ---- Post-processing: clean and renumber citations ----
+            # We do NOT trust the LLM's citations_used array. Instead, we
+            # extract every [N] directly from the answer text, validate
+            # each against the real source list, strip invalid ones, and
+            # renumber everything so the user always sees [1], [2], etc.
             answer_text = synthesized.answer_text
             
-            # Only keep citations that actually map to valid sources
-            used_nums = sorted(list(set(synthesized.citations_used) & valid_citation_nums))
+            # Step 1: Find every citation number actually used in the text
+            cited_in_text = sorted(set(int(m) for m in re.findall(r'\[(\d+)\]', answer_text)))
             
-            # Strip any invalid citation numbers from the answer text
-            # so the displayed answer never references a source that
-            # doesn't exist in the "Sources Used" list.
-            all_cited_in_text = set(int(m) for m in re.findall(r'\[(\d+)\]', answer_text))
-            invalid_in_text = all_cited_in_text - set(used_nums)
-            for bad_num in invalid_in_text:
-                answer_text = answer_text.replace(f"[{bad_num}]", "")
+            # Step 2: Split into valid (maps to a real source) vs invalid
+            valid_cited = [n for n in cited_in_text if n in valid_citation_nums]
+            invalid_cited = [n for n in cited_in_text if n not in valid_citation_nums]
             
-            # Renumber citations so they always start from 1
-            # e.g., if used_nums = [3, 5, 6], remap to [1, 2, 3]
-            if used_nums and used_nums[0] != 1:
-                remap = {old: new for new, old in enumerate(used_nums, 1)}
-                # Replace in reverse order (highest first) to avoid
-                # e.g. [1] replacing part of [10]
-                for old_num in sorted(remap.keys(), reverse=True):
-                    answer_text = answer_text.replace(f"[{old_num}]", f"[__{remap[old_num]}__]")
-                for new_num in remap.values():
-                    answer_text = answer_text.replace(f"[__{new_num}__]", f"[{new_num}]")
-                # Also renumber used_nums for the source list below
-                used_nums = list(range(1, len(used_nums) + 1))
+            # Step 3: Strip invalid citations from the text
+            for bad in invalid_cited:
+                answer_text = answer_text.replace(f"[{bad}]", "")
             
+            # Step 4: Renumber valid citations to start from 1
+            # e.g. if only [3] and [5] were cited, remap to [1] and [2]
+            remap = {old: new for new, old in enumerate(valid_cited, 1)}
+            # Replace highest numbers first to avoid collision (e.g. [1] matching inside [10])
+            for old_num in sorted(remap.keys(), reverse=True):
+                answer_text = answer_text.replace(f"[{old_num}]", f"[_CITE_{remap[old_num]}_]")
+            for new_num in remap.values():
+                answer_text = answer_text.replace(f"[_CITE_{new_num}_]", f"[{new_num}]")
+            
+            # Step 5: Build the Sources Used list with renumbered indices
             final_text = answer_text + "\n\n### Sources Used\n"
             
-            if not used_nums:
+            if not valid_cited:
                 final_text += "(No specific sources were cited in the answer.)\n"
             else:
-                for idx, num in enumerate(used_nums):
-                    # Map renumbered index back to original source
-                    original_nums = sorted(list(set(synthesized.citations_used) & valid_citation_nums))
-                    source_url = sources[original_nums[idx] - 1].url if idx < len(original_nums) else "Unknown"
-                    final_text += f"{num}. {source_url}\n"
+                for old_num in valid_cited:
+                    new_num = remap[old_num]
+                    source_url = sources[old_num - 1].url
+                    final_text += f"{new_num}. {source_url}\n"
 
             return final_text
 
