@@ -1,0 +1,16 @@
+name: Keep Streamlit App Awake
+
+on:
+  schedule:
+    # Runs at 00:00 and 12:00 every day (every 12 hours)
+    - cron: '0 0,12 * * *'
+  workflow_dispatch: # Allows you to manually trigger it from the Actions tab
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Streamlit App
+        run: |
+          curl -s --max-time 10 "https://research-agent-eval.streamlit.app" > /dev/null
+          echo "Pinged successfully"
